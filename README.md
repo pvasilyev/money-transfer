@@ -1,6 +1,8 @@
 # money-transfer
 This is very simple project which aims to demo lightweight RESTful API designed for money transfers between accounts.
 
+[![Build Status](https://travis-ci.org/pvasilyev/money-transfer.svg?branch=master)](https://travis-ci.org/pvasilyev/money-transfer)
+
 Current data model assumes, that:
 * There are Users (with ids, names, accounts references)
 * There are Accounts (with ids, money info and some meta info)
