@@ -141,12 +141,11 @@
                             <goal>replace</goal>
                         </goals>
                         <configuration>
-                            <!--<file>${basedir}/src/main/resources/webapp/index.html</file>-->
-                            <filesToInclude>${basedir}/src/main/resources/webapp/index.html,${basedir}/src/main/resources/webapp/swagger-ui.js,${basedir}/src/main/resources/webapp/swagger-ui.min.js</filesToInclude>
+                            <filesToInclude>${project.build.directory}/classes/webapp/swagger-ui.js,${project.build.directory}/classes/webapp/swagger-ui.min.js,${project.build.directory}/classes/webapp/index.html</filesToInclude>
                             <replacements>
                                 <replacement>
-                                    <token>"http://petstore.swagger.io/v2/swagger.json"</token>
-                                    <value>"api/swagger.json"</value>
+                                    <token>http://petstore.swagger.io/v2/swagger.json</token>
+                                    <value>api/swagger.json</value>
                                 </replacement>
                             </replacements>
                         </configuration>
