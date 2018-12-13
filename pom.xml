@@ -129,6 +129,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>swagger-url-replacer</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <!--<file>${basedir}/src/main/resources/webapp/index.html</file>-->
+                            <filesToInclude>${basedir}/src/main/resources/webapp/index.html,${basedir}/src/main/resources/webapp/swagger-ui.js,${basedir}/src/main/resources/webapp/swagger-ui.min.js</filesToInclude>
+                            <replacements>
+                                <replacement>
+                                    <token>"http://petstore.swagger.io/v2/swagger.json"</token>
+                                    <value>"api/swagger.json"</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Load the Swagger-UI components into the src/main/webapp/ directory to enable
             viewing/testing of the API routes. Accessible at http://<host>:<port>/swagger. -->
             <plugin>
