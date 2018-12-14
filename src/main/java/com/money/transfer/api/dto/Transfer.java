@@ -2,8 +2,10 @@ package com.money.transfer.api.dto;
 
 import com.google.common.base.MoreObjects;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
+@XmlRootElement
 public class Transfer {
 
     private String fromAccountId;

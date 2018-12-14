@@ -1,5 +1,6 @@
 package com.money.transfer.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.MoreObjects;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,7 +21,9 @@ public class Account {
     private String name;
     private Double balance;
     private Status status;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private Date created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private Date lastModified;
 
     public String getId() {

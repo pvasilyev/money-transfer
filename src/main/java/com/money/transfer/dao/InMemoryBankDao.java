@@ -25,6 +25,9 @@ public class InMemoryBankDao implements BankDao {
 
     @Override
     public User findUser(String id) {
+        if (!userById.containsKey(id)) {
+            throw new IllegalArgumentException("There is no such user with id=" + id);
+        }
         return userById.get(id);
     }
 
@@ -63,7 +66,6 @@ public class InMemoryBankDao implements BankDao {
         LOG.info("Loading some sample data into in-memory Bank DAO.");
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
 
         final String resourceName = "/sample-data.json";
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(resourceName);
