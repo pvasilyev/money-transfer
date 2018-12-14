@@ -7,6 +7,9 @@ This is very simple project which aims to demo lightweight RESTful API designed 
 Current data model assumes, that:
 * There are Users (with ids, names, accounts references)
 * There are Accounts (with ids, money info and some meta info)
+* Class-diagram might look like this:
+
+![Data Model](src/main/resources/docs/data-model.png?raw=true "Data Model")
 
 ## User Guide
 
