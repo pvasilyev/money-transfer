@@ -1,8 +1,10 @@
 package com.money.transfer.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.Objects;
@@ -17,14 +19,16 @@ public class Account {
         CLOSED
     }
 
+    @NotNull
     private String id;
     private String name;
+    @JsonProperty(defaultValue = "0.0D")
     private Double balance;
     private Status status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    private Date created;
+    private Date created = new Date();
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    private Date lastModified;
+    private Date lastModified = new Date();
 
     public String getId() {
         return id;

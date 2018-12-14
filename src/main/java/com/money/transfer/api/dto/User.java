@@ -2,6 +2,7 @@ package com.money.transfer.api.dto;
 
 import com.google.common.base.MoreObjects;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.Objects;
 @XmlRootElement
 public class User {
 
+    @NotNull
     private String id;
     private String firstName;
     private String lastName;

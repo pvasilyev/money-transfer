@@ -25,10 +25,15 @@ public class InMemoryBankDao implements BankDao {
 
     @Override
     public User findUser(String id) {
-        if (!userById.containsKey(id)) {
+        if (!userExists(id)) {
             throw new IllegalArgumentException("There is no such user with id=" + id);
         }
         return userById.get(id);
+    }
+
+    @Override
+    public boolean userExists(String id) {
+        return userById.containsKey(id);
     }
 
     @Override
@@ -36,15 +41,29 @@ public class InMemoryBankDao implements BankDao {
         if (userById.containsKey(userId)) {
             throw new IllegalArgumentException("There is already user with id=" + user.getId());
         }
-        userById.put(userId, user);
-        for (Account account : user.getAccounts()) {
-            accountById.put(account.getId(), account);
+        if (!userId.equals(user.getId())) {
+            throw new IllegalArgumentException("Provided userId=" + userId + " doesn't match with user's id=" + user.getId());
+        }
+        // operation of user creation is not so frequent in our Bank, so it should be ok to sync on 'this':
+        synchronized (this) {
+            userById.put(userId, user);
+            for (Account account : user.getAccounts()) {
+                accountById.put(account.getId(), account);
+            }
         }
     }
 
     @Override
     public Account findAccount(String id) {
+        if (!accountExists(id)) {
+            throw new IllegalArgumentException("There is no such account with id=" + id);
+        }
         return accountById.get(id);
+    }
+
+    @Override
+    public boolean accountExists(String id) {
+        return accountById.containsKey(id);
     }
 
     @Override
@@ -55,10 +74,16 @@ public class InMemoryBankDao implements BankDao {
         if (!userById.containsKey(userId)) {
             throw new IllegalArgumentException("There is no such user with id=" + userId);
         }
-        final User user = userById.get(userId);
-        final List<Account> accounts = user.getAccounts();
-        accounts.add(account);
-        accountById.put(accountId, account);
+        if (!accountId.equals(account.getId())) {
+            throw new IllegalArgumentException("Provided accountId=" + accountId + " doesn't match with account's id=" + account.getId());
+        }
+        // operation of account creation is not so frequent in our Bank, so it should be ok to sync on 'this':
+        synchronized (this) {
+            final User user = userById.get(userId);
+            final List<Account> accounts = user.getAccounts();
+            accounts.add(account);
+            accountById.put(accountId, account);
+        }
     }
 
     @PostConstruct

@@ -2,6 +2,7 @@ package com.money.transfer;
 
 import com.money.transfer.api.BankResource;
 import com.money.transfer.api.dto.Account;
+import com.money.transfer.api.dto.Transfer;
 import com.money.transfer.api.dto.User;
 import com.money.transfer.dao.BankDao;
 import com.money.transfer.dao.InMemoryBankDao;
@@ -29,9 +30,7 @@ import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.core.MediaType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 public class BankResourceAPITest extends JerseyTest {
 
@@ -87,9 +86,43 @@ public class BankResourceAPITest extends JerseyTest {
         Assert.assertThat(accounts.get(0).getLastModified(), IsEqual.equalTo(dateFormat.parse("2018-11-22T14:36:45Z")));
     }
 
+    @Test
+    public void createNewUserPeterParker() {
+        final User user = new User();
+        user.setId("BBP7N33GE8");
+        user.setFirstName("Peter");
+        user.setLastName("Parker");
+        final Account account = new Account();
+        account.setId("6KSO7HVS8M");
+        account.setName("Stock Account");
+        account.setBalance(23_214.45D);
+        user.setAccounts(Collections.singletonList(account));
+
+        String status = target("user/BBP7N33GE8")
+                .request()
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE), String.class);
+        Assert.assertThat(status, IsEqual.equalTo("{\"value\":\"OK\"}"));
+
+        final User peter = target("user/BBP7N33GE8").request().get(User.class);
+        Assert.assertThat(peter.getId(), IsEqual.equalTo("BBP7N33GE8"));
+        Assert.assertThat(peter.getFirstName(), IsEqual.equalTo("Peter"));
+        Assert.assertThat(peter.getLastName(), IsEqual.equalTo("Parker"));
+        final List<Account> accounts = peter.getAccounts();
+        Assert.assertThat(accounts, IsNull.notNullValue());
+        Assert.assertThat(accounts.size(), IsEqual.equalTo(1));
+        Assert.assertThat(accounts.get(0).getId(), IsEqual.equalTo("6KSO7HVS8M"));
+        Assert.assertThat(accounts.get(0).getName(), IsEqual.equalTo("Stock Account"));
+        Assert.assertThat(accounts.get(0).getBalance(), Matchers.closeTo(23_214.45D, 1E-6));
+    }
+
     @Test(expected = Exception.class)
     public void lookupNonExistingUser() {
         final User user = target("user/non-existing-user").request().get(User.class);
+    }
+
+    @Test(expected = Exception.class)
+    public void lookupNonExistingAccount() {
+        final Account account = target("account/non-existing-account").request().get(Account.class);
     }
 
     @Test
@@ -122,6 +155,34 @@ public class BankResourceAPITest extends JerseyTest {
         Assert.assertThat(accounts.get(0).getId(), IsEqual.equalTo("JWXAO5FD86"));
         Assert.assertThat(accounts.get(1).getId(), IsEqual.equalTo("6COT2XJFKQ"));
         Assert.assertThat(accounts.get(2).getId(), IsEqual.equalTo("YXTAZQ3IMZ"));
+    }
+
+    @Test
+    public void sampleTransfer() {
+        Account mickeyDeposit = target("account/JWXAO5FD86").request().get(Account.class);
+        Assert.assertThat(mickeyDeposit.getId(), IsEqual.equalTo("JWXAO5FD86"));
+        Assert.assertThat(mickeyDeposit.getName(), IsEqual.equalTo("Deposit Account"));
+        Assert.assertThat(mickeyDeposit.getBalance(), Matchers.closeTo(78_234.12, 1E-6));
+
+        Account bruceSavings = target("account/ZW4LIHK67K").request().get(Account.class);
+        Assert.assertThat(bruceSavings.getId(), IsEqual.equalTo("ZW4LIHK67K"));
+        Assert.assertThat(bruceSavings.getName(), IsEqual.equalTo("Savings Account"));
+        Assert.assertThat(bruceSavings.getBalance(), Matchers.closeTo(43_123.21, 1E-6));
+
+        Transfer transfer = new Transfer();
+        transfer.setFromAccountId(mickeyDeposit.getId());
+        transfer.setToAccountId(bruceSavings.getId());
+        transfer.setAmount(1_549.12D);
+        String status = target("transfer")
+                .request()
+                .post(Entity.entity(transfer, MediaType.APPLICATION_JSON_TYPE), String.class);
+        Assert.assertThat(status, IsEqual.equalTo("{\"value\":\"OK\"}"));
+
+        mickeyDeposit = target("account/JWXAO5FD86").request().get(Account.class);
+        Assert.assertThat(mickeyDeposit.getBalance(), Matchers.closeTo(76_685D, 1E-6));
+
+        bruceSavings = target("account/ZW4LIHK67K").request().get(Account.class);
+        Assert.assertThat(bruceSavings.getBalance(), Matchers.closeTo(44_672.33D, 1E-6));
     }
 
 }
