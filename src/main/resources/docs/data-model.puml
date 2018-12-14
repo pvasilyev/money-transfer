@@ -1,0 +1,40 @@
+@startuml
+
+class User {
+id : String
+firstName : String
+lastName : String
+accounts : List<Account>
+--
+...
+}
+
+class Account.Account {
+id : String
+name : String
+balance : Double
+status : Status
+created : Date
+lastModified : Date
+--
+...
+}
+
+enum Account.Status {
++ACTIVE,
++PENDING,
++INACTIVE,
++CLOSED
+}
+
+class Transfer {
+fromAccountId : String
+toAccountId : String
+amount : Double
+--
+...
+}
+
+User *- Account.Account: user has\nseveral accounts
+
+@enduml
