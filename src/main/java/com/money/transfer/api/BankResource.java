@@ -1,28 +1,34 @@
 package com.money.transfer.api;
 
 import com.money.transfer.api.dto.Account;
+import com.money.transfer.api.dto.Transfer;
 import com.money.transfer.api.dto.User;
+import com.money.transfer.dao.BankDao;
+import com.money.transfer.service.BankService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.glassfish.hk2.api.Immediate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.inject.Inject;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.Date;
 
 @Api(value = "/", tags = {"Bank Resource"})
 @Path("/")
+@Immediate
 public class BankResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    @Inject
+    private BankDao bankDao;
+    @Inject
+    private BankService bankService;
 
     @XmlRootElement
     public enum Status {
@@ -35,6 +41,21 @@ public class BankResource {
     @ApiOperation(value = "Status", notes = "Simple end-point to check if Bank Service is alive.", response = Status.class)
     public Status status() {
         LOG.info("Bank service is alive.");
+        if (bankDao != null) {
+            return Status.OK;
+        } else {
+            return null;
+        }
+    }
+
+    @POST
+    @Path("transfer")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Transfer money", notes = "Create account by id", response = User.class)
+    public Status transfer(@ApiParam(value = "Transfer JSON", required = true) Transfer transfer) {
+        LOG.info("Received following transfer request: {}", transfer);
+        bankService.transferMoney(transfer);
+        LOG.info("Transfer request succeeded.");
         return Status.OK;
     }
 
@@ -42,15 +63,23 @@ public class BankResource {
     @Path("user/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get user", notes = "Get user by id", response = User.class)
-    public User user(@ApiParam(value = "user id", required = true) @PathParam("id") String userId) {
-        // todo make me more dynamic
-        User user = new User();
-        user.setId(userId);
-        user.setFirstName("Peter");
-        user.setLastName("Doe");
-        user.setAccounts(Arrays.asList(account("random_account")));
-        LOG.info("Retrieving static user {}", user);
+    public User user(@ApiParam(value = "User id", required = true) @PathParam("id") String userId) {
+        final User user = bankDao.findUser(userId);
+        LOG.info("Retrieving user from DAO: {}", user);
         return user;
+    }
+
+    @POST
+    @Path("user/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create user", notes = "Create user by id", response = User.class)
+    public Status createUser(@ApiParam(value = "User id", required = true) @PathParam("id") String userId,
+                             @ApiParam(value = "User JSON", required = true) User user) {
+        LOG.info("Received following user: {}", user);
+        bankDao.createUser(userId, user);
+        LOG.info("Following userId={} was persisted into DAO", userId);
+        return Status.OK;
     }
 
     @GET
@@ -58,15 +87,23 @@ public class BankResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get account", notes = "Get account by id", response = User.class)
     public Account account(@ApiParam(value = "account id", required = true) @PathParam("id") String accountId) {
-        // todo make me more dynamic
-        Account account = new Account();
-        account.setCreated(new Date());
-        account.setId(accountId);
-        account.setMoney(250.75D);
-        account.setStatus(Account.Status.ACTIVE);
-        account.setLastModified(new Date());
-        LOG.info("Retrieving static account {}", account);
+        final Account account = bankDao.findAccount(accountId);
+        LOG.info("Retrieving account from DAO: {}", account);
         return account;
+    }
+
+    @POST
+    @Path("user/{userId}/account/{accountId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Create user", notes = "Create account by id", response = User.class)
+    public Status createAccount(@ApiParam(value = "User id", required = true) @PathParam("userId") String userId,
+                                @ApiParam(value = "Account id", required = true) @PathParam("accountId") String accountId,
+                                @ApiParam(value = "Account JSON", required = true) Account account) {
+        LOG.info("Received following user: {}", account);
+        bankDao.createAccount(userId, accountId, account);
+        LOG.info("Following accountId={} was persisted into DAO under userId={}", accountId, userId);
+        return Status.OK;
     }
 
 }

@@ -1,19 +1,24 @@
 package com.money.transfer.api.dto;
 
+import com.google.common.base.MoreObjects;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.Objects;
 
 @XmlRootElement
 public class Account {
 
     public enum Status {
         ACTIVE,
+        PENDING,
         INACTIVE,
         CLOSED
     }
 
     private String id;
-    private Double money;
+    private String name;
+    private Double balance;
     private Status status;
     private Date created;
     private Date lastModified;
@@ -26,12 +31,20 @@ public class Account {
         this.id = id;
     }
 
-    public Double getMoney() {
-        return money;
+    public String getName() {
+        return name;
     }
 
-    public void setMoney(Double money) {
-        this.money = money;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
     }
 
     public Status getStatus() {
@@ -58,4 +71,33 @@ public class Account {
         this.lastModified = lastModified;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return Objects.equals(id, account.id) &&
+                Objects.equals(name, account.name) &&
+                Objects.equals(balance, account.balance) &&
+                status == account.status &&
+                Objects.equals(created, account.created) &&
+                Objects.equals(lastModified, account.lastModified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, balance, status, created, lastModified);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("name", name)
+                .add("balance", balance)
+                .add("status", status)
+                .add("created", created)
+                .add("lastModified", lastModified)
+                .toString();
+    }
 }

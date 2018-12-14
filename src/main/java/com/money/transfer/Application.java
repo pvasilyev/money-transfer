@@ -5,6 +5,8 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import static org.glassfish.jersey.servlet.ServletProperties.JAXRS_APPLICATION_CLASS;
+
 public class Application {
 
     public static void main(String[] args) throws Exception {
@@ -17,8 +19,8 @@ public class Application {
 
         // Tells the Jersey Servlet which REST service/class to load.
         jerseyServlet.setInitParameter(
-                "jersey.config.server.provider.packages",
-                "io.swagger.jaxrs.json,io.swagger.jaxrs.listing,com.money.transfer");
+                JAXRS_APPLICATION_CLASS,
+                AppConfig.class.getName());
 
         // Setup Swagger servlet
         ServletHolder swaggerServlet = context.addServlet(io.swagger.jersey.config.JerseyJaxrsConfig.class, "/swagger-core");
