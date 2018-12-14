@@ -7,6 +7,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Simple POJO to model user from banking domain.
+ * <br>
+ * It has id, first-/last-, and list of accounts associated with this user.
+ *
+ * @author pvasilyev
+ */
 @XmlRootElement
 public class User {
 

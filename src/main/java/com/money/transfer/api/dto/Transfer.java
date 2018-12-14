@@ -6,6 +6,11 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
+/**
+ * Simple POJO to model the request to transfer money from one account into the other.
+ *
+ * @author pvasilyev
+ */
 @XmlRootElement
 public class Transfer {
 

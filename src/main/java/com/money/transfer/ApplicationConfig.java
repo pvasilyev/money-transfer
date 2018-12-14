@@ -13,11 +13,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.ApplicationPath;
 
+/**
+ * Extension of the {@link ResourceConfig} which aims to bind together some services (interfaces) with corresponding
+ * implementation. Works using HK2 as a lightweight DI framework.
+ * <p>>
+ * Class can be amended if additional packages for scanning will be needed. Or if additional services with corresponding
+ * implementations will arise.
+ *
+ * @author pvasilyev
+ */
 @ApplicationPath("/api")
-public class AppConfig extends ResourceConfig {
+public class ApplicationConfig extends ResourceConfig {
 
     @Inject
-    public AppConfig(ServiceLocator locator) {
+    public ApplicationConfig(ServiceLocator locator) {
         register(new AbstractBinder() {
             @Override
             protected void configure() {

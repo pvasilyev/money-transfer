@@ -11,11 +11,18 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * In-memory implementation of {@link BankDao} which holds all objects in RAM.
+ * <p>
+ * <b>Note</b>: after this DAO is instantiated by IoC the {@link #postConstruct()} will be invoked which
+ * currently implemented to load-up some sample data. That's solely for demo purposes.
+ *
+ * @author pvasilyev
+ */
 public class InMemoryBankDao implements BankDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

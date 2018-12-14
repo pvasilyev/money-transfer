@@ -1,6 +1,6 @@
 package com.money.transfer;
 
-import com.money.transfer.api.BankResource;
+import com.money.transfer.api.BankV1Resource;
 import com.money.transfer.api.dto.Account;
 import com.money.transfer.api.dto.Transfer;
 import com.money.transfer.api.dto.User;
@@ -8,7 +8,6 @@ import com.money.transfer.dao.BankDao;
 import com.money.transfer.dao.InMemoryBankDao;
 import com.money.transfer.service.BankService;
 import com.money.transfer.service.BankServiceImpl;
-import org.glassfish.hk2.api.Immediate;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
@@ -18,7 +17,6 @@ import org.hamcrest.Matchers;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -32,7 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class BankResourceAPITest extends JerseyTest {
+public class BankV1ResourceTest extends JerseyTest {
 
     private static class ImmediateFeature implements Feature {
 
@@ -49,7 +47,7 @@ public class BankResourceAPITest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new ResourceConfig(BankResource.class)
+        return new ResourceConfig(BankV1Resource.class)
                 .register(new AbstractBinder() {
                     @Override
                     protected void configure() {
@@ -62,13 +60,13 @@ public class BankResourceAPITest extends JerseyTest {
 
     @Test
     public void sillyTest() {
-        final String hello = target("status").request().get(String.class);
+        final String hello = target("/v1/status").request().get(String.class);
         Assert.assertEquals("{\"value\":\"OK\"}", hello);
     }
 
     @Test
     public void checkClarkKent() throws ParseException {
-        final User user = target("user/ZJFCHF2539").request().get(User.class);
+        final User user = target("/v1/user/ZJFCHF2539").request().get(User.class);
         Assert.assertThat(user.getId(), IsEqual.equalTo("ZJFCHF2539"));
         Assert.assertThat(user.getFirstName(), IsEqual.equalTo("Clark"));
         Assert.assertThat(user.getLastName(), IsEqual.equalTo("Kent"));
@@ -98,12 +96,12 @@ public class BankResourceAPITest extends JerseyTest {
         account.setBalance(23_214.45D);
         user.setAccounts(Collections.singletonList(account));
 
-        String status = target("user/BBP7N33GE8")
+        String status = target("/v1/user/BBP7N33GE8")
                 .request()
                 .post(Entity.entity(user, MediaType.APPLICATION_JSON_TYPE), String.class);
         Assert.assertThat(status, IsEqual.equalTo("{\"value\":\"OK\"}"));
 
-        final User peter = target("user/BBP7N33GE8").request().get(User.class);
+        final User peter = target("/v1/user/BBP7N33GE8").request().get(User.class);
         Assert.assertThat(peter.getId(), IsEqual.equalTo("BBP7N33GE8"));
         Assert.assertThat(peter.getFirstName(), IsEqual.equalTo("Peter"));
         Assert.assertThat(peter.getLastName(), IsEqual.equalTo("Parker"));
@@ -117,17 +115,17 @@ public class BankResourceAPITest extends JerseyTest {
 
     @Test(expected = Exception.class)
     public void lookupNonExistingUser() {
-        final User user = target("user/non-existing-user").request().get(User.class);
+        final User user = target("/v1/user/non-existing-user").request().get(User.class);
     }
 
     @Test(expected = Exception.class)
     public void lookupNonExistingAccount() {
-        final Account account = target("account/non-existing-account").request().get(Account.class);
+        final Account account = target("/v1/account/non-existing-account").request().get(Account.class);
     }
 
     @Test
     public void checkAddingNewAccount() {
-        User mickeyMouse = target("user/W0NIR0CQT6").request().get(User.class);
+        User mickeyMouse = target("/v1/user/W0NIR0CQT6").request().get(User.class);
         Assert.assertThat(mickeyMouse.getId(), IsEqual.equalTo("W0NIR0CQT6"));
         Assert.assertThat(mickeyMouse.getFirstName(), IsEqual.equalTo("Mickey"));
         Assert.assertThat(mickeyMouse.getLastName(), IsEqual.equalTo("Mouse"));
@@ -144,11 +142,11 @@ public class BankResourceAPITest extends JerseyTest {
         creditAccount.setCreated(new Date());
         creditAccount.setLastModified(new Date());
 
-        final String status = target("user/W0NIR0CQT6/account/YXTAZQ3IMZ")
+        final String status = target("/v1/user/W0NIR0CQT6/account/YXTAZQ3IMZ")
                 .request()
                 .post(Entity.entity(creditAccount, MediaType.APPLICATION_JSON_TYPE), String.class);
         Assert.assertThat(status, IsEqual.equalTo("{\"value\":\"OK\"}"));
-        mickeyMouse = target("user/W0NIR0CQT6").request().get(User.class);
+        mickeyMouse = target("/v1/user/W0NIR0CQT6").request().get(User.class);
         accounts = mickeyMouse.getAccounts();
         Assert.assertThat(accounts, IsNull.notNullValue());
         Assert.assertThat(accounts.size(), IsEqual.equalTo(3));
@@ -159,12 +157,12 @@ public class BankResourceAPITest extends JerseyTest {
 
     @Test
     public void sampleTransfer() {
-        Account mickeyDeposit = target("account/JWXAO5FD86").request().get(Account.class);
+        Account mickeyDeposit = target("/v1/account/JWXAO5FD86").request().get(Account.class);
         Assert.assertThat(mickeyDeposit.getId(), IsEqual.equalTo("JWXAO5FD86"));
         Assert.assertThat(mickeyDeposit.getName(), IsEqual.equalTo("Deposit Account"));
         Assert.assertThat(mickeyDeposit.getBalance(), Matchers.closeTo(78_234.12, 1E-6));
 
-        Account bruceSavings = target("account/ZW4LIHK67K").request().get(Account.class);
+        Account bruceSavings = target("/v1/account/ZW4LIHK67K").request().get(Account.class);
         Assert.assertThat(bruceSavings.getId(), IsEqual.equalTo("ZW4LIHK67K"));
         Assert.assertThat(bruceSavings.getName(), IsEqual.equalTo("Savings Account"));
         Assert.assertThat(bruceSavings.getBalance(), Matchers.closeTo(43_123.21, 1E-6));
@@ -173,15 +171,15 @@ public class BankResourceAPITest extends JerseyTest {
         transfer.setFromAccountId(mickeyDeposit.getId());
         transfer.setToAccountId(bruceSavings.getId());
         transfer.setAmount(1_549.12D);
-        String status = target("transfer")
+        String status = target("/v1/transfer")
                 .request()
                 .post(Entity.entity(transfer, MediaType.APPLICATION_JSON_TYPE), String.class);
         Assert.assertThat(status, IsEqual.equalTo("{\"value\":\"OK\"}"));
 
-        mickeyDeposit = target("account/JWXAO5FD86").request().get(Account.class);
+        mickeyDeposit = target("/v1/account/JWXAO5FD86").request().get(Account.class);
         Assert.assertThat(mickeyDeposit.getBalance(), Matchers.closeTo(76_685D, 1E-6));
 
-        bruceSavings = target("account/ZW4LIHK67K").request().get(Account.class);
+        bruceSavings = target("/v1/account/ZW4LIHK67K").request().get(Account.class);
         Assert.assertThat(bruceSavings.getBalance(), Matchers.closeTo(44_672.33D, 1E-6));
     }
 

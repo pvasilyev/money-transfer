@@ -9,6 +9,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * Simple POJO to model account from banking domain.
+ * <br>
+ * It has id, name (purpose - like Deposit Account, IRA Account), balance and some other meta-info.
+ *
+ * @author pvasilyev
+ */
 @XmlRootElement
 public class Account {
 
